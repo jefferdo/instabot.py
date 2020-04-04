@@ -1209,7 +1209,7 @@ class InstaBot:
                    f"status code: {resp.status_code}. Reason: {resp.text}"
             if resp.status_code == 200:
                 raw_data = re.search(
-                    "window.__additionalDataLoaded\\('/p/\\w*/',(.*?)\\);",
+                    "window.__additionalDataLoaded\\('/p/[\\w-]+/',(.*?)\\);",
                     resp.text, re.DOTALL).group(1)
                 all_data = json.loads(raw_data)
 

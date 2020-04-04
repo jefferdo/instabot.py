@@ -9,3 +9,5 @@
 | 0.7.0   | Refactor class InstaBot: clean a lot of unused variables, fix some obsolete interdependencies |
 | 0.7.1   | Make login to IG simpler. Should fix issues with login |
 | 0.7.2   | Actions *_per_run depend on time the bot works (issue 2574) |
+| 0.7.3   | Add Telegram handler package |
+|         | Fix issue with posts commenting (issue 2578) |
