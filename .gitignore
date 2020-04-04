@@ -111,3 +111,4 @@ ENV/
 *.session
 DS/
 nohup.out
+instabot.config.yml
