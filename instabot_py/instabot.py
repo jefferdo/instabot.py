@@ -77,6 +77,7 @@ class InstaBot:
         self.bot_start = datetime.datetime.now()
 
         # Time settings
+        self.start_day = datetime.datetime.today().day
         self.start_at_h = self.config.get('start_at_h')
         self.start_at_m = self.config.get('start_at_m')
         self.end_at_h = self.config.get('end_at_h')
@@ -750,28 +751,37 @@ class InstaBot:
             return True
 
     def loop_controller(self):
-        # 400 errors,
+        # 400 errors
         if self.error_400 >= self.error_400_to_ban:
-            self.logger.info(f"Bot receives {self.error_400} HTTP_400_Error(s), You're maybe banned! ")
-            self.logger.info(f"Pause for {self.ban_sleep_time} seconds")
+            self.logger.info(
+                f"Bot has received {self.error_400} HTTP_400_Error(s). It seems"
+                f" you're banned! Pause for {self.ban_sleep_time} seconds")
             time.sleep(self.generate_time(self.ban_sleep_time))
             self.error_400 = 0
 
         # exceed counters, program halt
-        if self.like_counter > self.like_per_run \
-                and self.follow_counter > self.follow_per_run \
-                and self.unfollow_counter > self.unfollow_per_run \
-                and self.comments_counter > self.comments_per_run:
-            self.prog_run = False
+        current_day = datetime.datetime.today().day
+        if self.start_day == current_day:
+            if self.like_counter > self.like_per_run \
+                    and self.unlike_counter > self.unlike_per_run \
+                    and self.follow_counter > self.follow_per_run \
+                    and self.unfollow_counter > self.unfollow_per_run \
+                    and self.comments_counter > self.comments_per_run:
+                self.prog_run = False
 
-        if self.iteration_ready('follow') or self.iteration_ready('unfollow') \
-                or self.iteration_ready('like') \
-                or self.iteration_ready('unlike') \
-                or self.iteration_ready('comments'):
-            return True
+            if self.iteration_ready('follow') \
+                    or self.iteration_ready('unfollow') \
+                    or self.iteration_ready('like') \
+                    or self.iteration_ready('unlike') \
+                    or self.iteration_ready('comments'):
+                return True
+            else:
+                time.sleep(1)
+                return False
         else:
-            time.sleep(1)
-            return False
+            self.start_day = current_day
+            self.like_counter, self.unlike_counter, self.follow_counter, \
+                self.unfollow_counter, self.comments_counter = 0, 0, 0, 0, 0
 
     def mainloop(self):
         medias = []
@@ -1189,7 +1199,7 @@ class InstaBot:
         action_counter_per_run = getattr(self, action + "_per_run", 0)
         registered_time = self.next_iteration.get(action, 0)
         return action_counter < action_counter_per_run \
-               and 0 <= registered_time < time.time()
+            and 0 <= registered_time < time.time()
 
     def generate_comment(self):
         c_list = list(itertools.product(*self.comment_list))
